@@ -1,0 +1,56 @@
+# Dependencies
+**/node_modules/
+**/package-lock.json
+**/yarn.lock
+
+# Environment variables
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.development
+**/.env.test
+**/.env.production
+
+# Build directories
+**/dist/
+**/build/
+client/out/
+.next/
+
+# Debug logs
+**/logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# IDE and editor files
+.idea/
+.vscode/
+**/*.swp
+**/*.swo
+**/*~
+
+# OS generated files
+.DS_Store
+**/.DS_Store
+**/Thumbs.db
+
+# Testing
+**/coverage/
+**/.nyc_output
+
+# Cache directories
+**/.npm
+**/.eslintcache
+**/.cache
+.parcel-cache
+
+# Typescript
+**/*.tsbuildinfo
+**/next-env.d.ts
+
+# Temporary files
+**/tmp/
+**/temp/
+**/.temp/
