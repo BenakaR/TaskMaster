@@ -7,6 +7,7 @@ export const validateRequest = (schema: AnyZodObject) =>
       await schema.parseAsync(req.body);
       return next();
     } catch (error) {
-      return res.status(400).json(error);
+      res.status(400).json(error);
+      return;
     }
 };

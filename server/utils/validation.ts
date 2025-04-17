@@ -8,7 +8,7 @@ export const userSchema = z.object({
 });
 
 export const taskSchema = z.object({
-  name: z.string().min(3).max(100),
+  name: z.string().min(3),
   description: z.string().optional(),
   status: z.enum(['pending', 'in_progress', 'completed']),
   priority: z.enum(['low', 'medium', 'high', 'urgent']),

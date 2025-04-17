@@ -4,7 +4,9 @@
   "description": "Task management system",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +19,11 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@types/express": "^5.0.1"
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/pg": "^8.11.13",
+    "nodemon": "^3.1.9",
+    "ts-node-dev": "^2.0.0"
   }
 }
