@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "description": "Task management system",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+    "start": "node index.js",
+    "dev": "node --watch index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -22,8 +23,10 @@
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^20.17.30",
     "@types/pg": "^8.11.13",
-    "nodemon": "^3.1.9",
-    "ts-node-dev": "^2.0.0"
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
   }
 }

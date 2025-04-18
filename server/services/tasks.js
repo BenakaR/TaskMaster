@@ -1,9 +1,7 @@
-import { pool } from './db';
-import { QueryResult } from 'pg';
-import { Task } from './types';
+import { pool } from './db.js';
 
 class TaskService {
-    async getTasks(userId: number): Promise<Task[]> {
+    async getTasks(userId) {
         const query = `
             SELECT * FROM tasks 
             WHERE project_id IN (
@@ -11,11 +9,11 @@ class TaskService {
             ) OR assigned_user_id = $1
             ORDER BY created_at DESC
         `;
-        const result: QueryResult<Task> = await pool.query(query, [userId]);
+        const result = await pool.query(query, [userId]);
         return result.rows;
     }
 
-    async createTask(taskData: Partial<Task>): Promise<Task> {
+    async createTask(taskData) {
         const {
             name,
             description,
@@ -47,21 +45,17 @@ class TaskService {
             created_by
         ];
 
-        const result: QueryResult<Task> = await pool.query(query, values);
+        const result = await pool.query(query, values);
         return result.rows[0];
     }
 
-    async getTaskById(taskId: number): Promise<Task | null> {
-        const query = 'SELECT * FROM tasks WHERE task_id = $1';
-        const result: QueryResult<Task> = await pool.query(query, [taskId]);
+    async getTaskById(taskId) {
+        const query = 'SELECT * FROM tasks WHERE id = $1';
+        const result = await pool.query(query, [taskId]);
         return result.rows[0] || null;
     }
 
-    async updateTask(
-        taskId: number,
-        updates: Partial<Task>,
-        userId: number
-    ): Promise<Task | null> {
+    async updateTask(taskId, updates, userId) {
         const allowedUpdates = [
             'name',
             'description',
@@ -87,7 +81,7 @@ class TaskService {
         const query = `
             UPDATE tasks 
             SET ${setClause}, updated_at = CURRENT_TIMESTAMP
-            WHERE task_id = $1 
+            WHERE id = $1 
             AND (
                 project_id IN (SELECT project_id FROM projects WHERE owner_id = $${values.length + 1})
                 OR assigned_user_id = $${values.length + 1}
@@ -96,20 +90,20 @@ class TaskService {
         `;
 
         values.push(userId);
-        const result: QueryResult<Task> = await pool.query(query, values);
+        const result = await pool.query(query, values);
         return result.rows[0] || null;
     }
 
-    async deleteTask(taskId: number, userId: number): Promise<boolean> {
+    async deleteTask(taskId, userId) {
         const query = `
             DELETE FROM tasks 
-            WHERE task_id = $1 
+            WHERE id = $1 
             AND project_id IN (
                 SELECT project_id FROM projects WHERE owner_id = $2
             )
         `;
         const result = await pool.query(query, [taskId, userId]);
-        return result.rowCount? result.rowCount > 0 : false;
+        return result.rowCount ? result.rowCount > 0 : false;
     }
 }
 

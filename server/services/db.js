@@ -1,21 +1,34 @@
-import { Pool, PoolConfig, QueryResult } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-const config: PoolConfig = {
+import dotenv from 'dotenv';
+dotenv.config();
+
+const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT || '5432', 10),
     database: process.env.DB_NAME
-};
+  };
+  
+  const pool = new Pool(config);
+  
+  const createTablesQuery = `
+  CREATE TABLE IF NOT EXISTS organization (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    user_ids INTEGER[] DEFAULT '{}',
+    project_ids INTEGER[] DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
 
-const pool = new Pool(config);
-
-const createTablesQuery = `
-  -- Create users table
   CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
+    organization_id INTEGER REFERENCES organization(id),
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -25,7 +38,7 @@ const createTablesQuery = `
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
-    owner_id INTEGER REFERENCES users(user_id),
+    owner_id INTEGER REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
@@ -45,26 +58,23 @@ const createTablesQuery = `
     CONSTRAINT valid_status CHECK (status IN ('pending', 'in_progress', 'completed')),
     CONSTRAINT valid_priority CHECK (priority IN ('low', 'medium', 'high', 'urgent'))
   );
+
+  
 `;
 
-async function initializeDatabase(): Promise<void> {
-  try {
-    await pool.query(createTablesQuery);
-    console.log('Database tables created successfully');
-  } catch (error) {
-    console.error('Error initializing database:', error);
-    throw error;
-  }
+async function initializeDatabase() {
+    try {
+        await pool.query(createTablesQuery);
+        console.log('Database tables created successfully');
+    } catch (error) {
+        console.error('Error initializing database:', error);
+        throw error;
+    }
 }
 
-interface DatabaseInterface {
-  query: (text: string, params?: any[]) => Promise<QueryResult>;
-  initializeDatabase: () => Promise<void>;
-}
-
-const db: DatabaseInterface = {
-  query: (text, params) => pool.query(text, params),
-  initializeDatabase
+const db = {
+    query: (text, params) => pool.query(text, params),
+    initializeDatabase
 };
 
 export default db;

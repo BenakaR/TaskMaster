@@ -1,29 +1,11 @@
-import express, { Router, Request, Response } from 'express';
-import { auth } from '../middleware/auth';
-import { validateRequest } from '../middleware/validate';
-import { taskSchema } from '../utils/validation';
-import taskService from '../services/tasks';
+import express from 'express';
+import { auth } from '../middleware/auth.js';
+import taskService from '../services/tasks.js';
 
-interface TaskRequest {
-    name: string;
-    description?: string;
-    status: 'pending' | 'in_progress' | 'completed';
-    priority: 'low' | 'medium' | 'high' | 'urgent';
-    projectId: number;
-    assignedUserId?: number;
-    dueDate?: Date;
-}
-
-interface Task extends TaskRequest {
-    task_id: number;
-    created_at: Date;
-    updated_at: Date;
-}
-
-const router: Router = express.Router();
+const router = express.Router();
 
 // Get all tasks
-router.get('/', auth, async (req: Request, res: Response) => {
+router.get('/', auth, async (req, res) => {
     try {
         if (!req.user) {
             throw new Error('User not found');
@@ -31,7 +13,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
         const tasks = await taskService.getTasks(req.user?.userId);
         res.json(tasks);
     } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -39,8 +21,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
 router.post(
     '/',
     auth,
-    validateRequest(taskSchema),
-    async (req: Request<{}, {}, TaskRequest>, res: Response) => {
+    async (req, res) => {
         try {
             const task = await taskService.createTask({
                 ...req.body,
@@ -48,13 +29,14 @@ router.post(
             });
             res.status(201).json(task);
         } catch (error) {
-            res.status(400).json({ error: (error as Error).message });
+            console.error('Error creating task:', error);
+            res.status(400).json({ error: error.message });
         }
     }
 );
 
 // Get task by ID
-router.get('/:id', auth, async (req: Request, res: Response) => {
+router.get('/:id', auth, async (req, res) => {
     try {
         const task = await taskService.getTaskById(parseInt(req.params.id));
         if (!task) {
@@ -63,7 +45,7 @@ router.get('/:id', auth, async (req: Request, res: Response) => {
         }
         res.json(task);
     } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -71,7 +53,7 @@ router.get('/:id', auth, async (req: Request, res: Response) => {
 router.patch(
     '/:id',
     auth,
-    async (req: Request, res: Response) => {
+    async (req, res) => {
         try {
             const taskId = parseInt(req.params.id);
             const updates = req.body;
@@ -85,13 +67,13 @@ router.patch(
             }
             res.json(task);
         } catch (error) {
-            res.status(400).json({ error: (error as Error).message });
+            res.status(400).json({ error: error.message });
         }
     }
 );
 
 // Delete task
-router.delete('/:id', auth, async (req: Request, res: Response) => {
+router.delete('/:id', auth, async (req, res) => {
     try {
         const taskId = parseInt(req.params.id);
         if (!req.user) {
@@ -104,7 +86,7 @@ router.delete('/:id', auth, async (req: Request, res: Response) => {
         }
         res.status(204).send();
     } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
+        res.status(500).json({ error: error.message });
     }
 });
 
