@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 import userRoutes from './routes/userRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 import db from './services/db.js';
 
 dotenv.config();
@@ -29,6 +31,8 @@ app.use(express.static('public'));
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Initialize database
 db.initializeDatabase()

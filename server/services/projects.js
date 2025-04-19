@@ -10,7 +10,6 @@ class ProjectService {
         ORDER BY created_at DESC
         `;
         const result = await pool.query(query, [userId]);
-        console.log('Projects retrieved:', result.rows);
         return result.rows;
     }
 
@@ -27,7 +26,6 @@ class ProjectService {
         const projectId = result.rows[0].id;
         
         const organization = await pool.query(`SELECT organization_id FROM users WHERE id = $1`, [owner_id]);
-        console.log('Organization retrieved:', organization.rows[0]);
         const org_id = organization.rows[0].organization_id;
         const query2 = `
             UPDATE organization

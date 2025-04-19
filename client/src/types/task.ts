@@ -6,11 +6,7 @@ export interface Task {
     priority: 'low' | 'medium' | 'high' | 'urgent';
     project_id: number;
     assigned_user_id?: number | null;
-    assigned_user?: {
-        id: number;
-        username: string;
-    } | null;
-    due_date?: Date;
+    due_date?: string;
     created_at: Date;
     updated_at: Date;
 }
@@ -22,5 +18,5 @@ export interface CreateTaskDTO {
     priority: Task['priority'];
     project_id: number;
     assigned_user_id?: number | null;
-    due_date?: Date;
+    due_date?: string;
 }

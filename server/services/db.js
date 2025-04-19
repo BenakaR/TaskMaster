@@ -59,7 +59,17 @@ const config = {
     CONSTRAINT valid_priority CHECK (priority IN ('low', 'medium', 'high', 'urgent'))
   );
 
-  
+  CREATE TABLE IF NOT EXISTS task_embeddings (
+    id SERIAL PRIMARY KEY,
+    task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
+    content_embedding vector(768),
+    content_text TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(task_id)
+  );
+
+  CREATE INDEX IF NOT EXISTS task_embeddings_idx ON task_embeddings 
+  USING ivfflat (content_embedding vector_cosine_ops);
 `;
 
 async function initializeDatabase() {

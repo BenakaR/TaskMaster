@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Login } from './components/auth/Login';
+import { Chat } from './components/chat/Chat';
 import { Modal } from './components/common/Modal';
 import { TaskList } from './components/tasks/TaskList';
 import { TaskForm } from './components/tasks/TaskForm';
 import { Register } from './components/auth/Register';
 import { Header } from './components/layout/Header';
 import { ProjectsPage } from './components/project/ProjectsPage';
+import { ProjectDetails } from './components/project/ProjectDetails';
 import { Task } from './types/task';
 import api from './services/api';
 
@@ -51,7 +53,12 @@ function AppContent() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {isAuthenticated && <Header />}
+            {isAuthenticated && (
+                <>
+                    <Header />
+                    <Chat />
+                </>
+            )}
             <Routes>
                 <Route path="/" element={
                     <PrivateRoute>
@@ -130,6 +137,14 @@ function AppContent() {
                         <ProjectsPage />
                     </PrivateRoute>
                 } />
+                <Route 
+                    path="/projects/:projectId" 
+                    element={
+                        <PrivateRoute>
+                            <ProjectDetails />
+                        </PrivateRoute>
+                    } 
+                />
             </Routes>
         </div>
     );

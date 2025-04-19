@@ -1,13 +1,24 @@
 import { pool } from './db.js';
+import searchService from './search.js';
 
 class TaskService {
     async getTasks(userId) {
         const query = `
-            SELECT * FROM tasks 
-            WHERE project_id IN (
-                SELECT project_id FROM projects WHERE owner_id = $1
-            ) OR assigned_user_id = $1
-            ORDER BY created_at DESC
+            SELECT 
+                t.*,
+                p.name as project_name,
+                u.username as assigned_username,
+                to_char(t.due_date, 'YYYY-MM-DD') as due_date
+            FROM tasks t
+            LEFT JOIN projects p ON t.project_id = p.id
+            LEFT JOIN users u ON t.assigned_user_id = u.id
+            WHERE t.project_id IN (
+                SELECT id FROM projects 
+                WHERE id IN (
+                    SELECT unnest(project_ids) FROM organization WHERE $1 = ANY(user_ids)
+                )
+            )
+            ORDER BY t.created_at DESC
         `;
         const result = await pool.query(query, [userId]);
         return result.rows;
@@ -46,7 +57,15 @@ class TaskService {
         ];
 
         const result = await pool.query(query, values);
-        return result.rows[0];
+        const task = result.rows[0];
+
+        // Index the task content
+        await searchService.indexTask(
+            task.id, 
+            `${task.name} ${task.description || ''}`
+        );
+        
+        return task;
     }
 
     async getTaskById(taskId) {
@@ -91,7 +110,16 @@ class TaskService {
 
         values.push(userId);
         const result = await pool.query(query, values);
-        return result.rows[0] || null;
+        const task = result.rows[0] || null;
+
+        if (task && (updates.name || updates.description)) {
+            await searchService.indexTask(
+                task.id,
+                `${task.name} ${task.description || ''}`
+            );
+        }
+        
+        return task;
     }
 
     async deleteTask(taskId, userId) {

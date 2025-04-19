@@ -23,23 +23,49 @@ const taskSchema = z.object({
     due_date: z.string().optional().nullable()
 });
 
+const formatDateForInput = (date: string | undefined | null): string => {
+    if (!date) return '';
+    // Create date object in UTC
+    const d = new Date(date);
+    // Get UTC year, month, and day
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    // Return YYYY-MM-DD format
+    return `${year}-${month}-${day}`;
+};
+
+const formatDateForServer = (date: string | undefined | null): string | undefined => {
+    if (!date) return undefined;
+    // Create date object from input value (which is in YYYY-MM-DD format)
+    const [year, month, day] = date.split('-');
+    // Create UTC date string
+    return new Date(Date.UTC(+year, +month - 1, +day)).toISOString();
+};
+
 export const TaskForm: React.FC<TaskFormProps> = ({ onClose, taskToEdit, isEditMode }) => {
     const { createTask, updateTask } = useTasks();
     const { data: projects, isLoading: isLoadingProjects } = useProjects();
     const { data: users, isLoading: isLoadingUsers } = useOrganizationUsers();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CreateTaskDTO>({
         resolver: zodResolver(taskSchema),
-        defaultValues: taskToEdit || undefined
+        defaultValues: isEditMode ? {
+            ...taskToEdit,
+            due_date: formatDateForInput(taskToEdit?.due_date)
+        } : {}
     });
 
     const onSubmit = async (data: CreateTaskDTO) => {
-        console.log('Form submitted:', data);
         try {
+            const formattedData = {
+                ...data,
+                due_date: formatDateForServer(data.due_date)
+            };
+
             if (isEditMode && taskToEdit) {
-                console.log('Task updated successfully!');
-                await updateTask({ id: taskToEdit.id, updates: data });
+                await updateTask({ id: taskToEdit.id, updates: formattedData });
             } else {
-                await createTask(data);
+                await createTask(formattedData);
             }
             onClose();
         } catch (error) {
@@ -140,6 +166,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onClose, taskToEdit, isEditM
                     <option value="high">High</option>
                     <option value="urgent">Urgent</option>
                 </select>
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Due Date</label>
+                <input
+                    type="date"
+                    {...register('due_date')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                {errors.due_date && (
+                    <span className="text-sm text-red-500">{errors.due_date.message}</span>
+                )}
             </div>
 
             <div className="flex justify-end gap-2">
