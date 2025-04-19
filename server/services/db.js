@@ -15,6 +15,9 @@ const config = {
   const pool = new Pool(config);
   
   const createTablesQuery = `
+
+  CREATE EXTENSION IF NOT EXISTS vector;
+  
   CREATE TABLE IF NOT EXISTS organization (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
