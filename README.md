@@ -10,7 +10,6 @@ A modern task management system with real-time search, AI assistance, and collab
 - 🔍 Vector-based semantic search
 - 🎯 Kanban board with drag-and-drop
 - 👥 User assignments and collaboration
-- 📅 Due date tracking
 - 🏷️ Priority and status management
 
 ## Tech Stack
